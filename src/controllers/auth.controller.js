@@ -49,10 +49,10 @@ async function registerUserController(req, res) {
   res.status(201).json({
     message: "User registered successfully",
     user: {
-        id: newUser._id,
-        username: newUser.username,
-        email: newUser.email,
-    }
+      id: newUser._id,
+      username: newUser.username,
+      email: newUser.email,
+    },
   });
 }
 
@@ -81,10 +81,14 @@ async function loginUserController(req, res) {
   }
 
   // If password is valid, generate a JWT token
-  const token = await jwt.sign({
-    id: user._id,
-    username: user.username,
-  }, process.env.JWT_SECRET, { expiresIn: "1d" });
+  const token = await jwt.sign(
+    {
+      id: user._id,
+      username: user.username,
+    },
+    process.env.JWT_SECRET,
+    { expiresIn: "1d" },
+  );
 
   // Set the token in a cookie
   res.cookie("token", token);
@@ -92,10 +96,10 @@ async function loginUserController(req, res) {
   res.status(200).json({
     message: "User logged in successfully",
     user: {
-        id: user._id,
-        username: user.username,
-        email: user.email,
-    }
+      id: user._id,
+      username: user.username,
+      email: user.email,
+    },
   });
 }
 /**
@@ -105,18 +109,38 @@ async function loginUserController(req, res) {
  * @access Public
  */
 async function logoutUserController(req, res) {
-    const token = req.cookies.token;
+  const token = req.cookies.token;
 
-    if(token){
-        await blacklistTokenModel.create({ token });
+  if (token) {
+    await blacklistTokenModel.create({ token });
 
-        res.clearCookie("token");
-        res.status(200).json({ message: "User logged out successfully" });
-    }
+    res.clearCookie("token");
+    res.status(200).json({ message: "User logged out successfully" });
+  }
+}
+
+/**
+ * @name getCurrentUserController
+ * @description Controller to get the current logged in user
+ * @route GET /api/auth/me
+ * @access Private
+ */
+async function getCurrentUserController(req, res) {
+  const user = await userModel.findById(req.user.id).select("-password");
+  
+  if (!user) {
+    return res.status(404).json({ message: "User not found" });
+  }
+  
+  return res.status(200).json({ 
+    message: "Current user retrieved successfully",
+    user: user
+   });
 }
 
 module.exports = {
   registerUserController,
   loginUserController,
-  logoutUserController
+  logoutUserController,
+  getCurrentUserController
 };

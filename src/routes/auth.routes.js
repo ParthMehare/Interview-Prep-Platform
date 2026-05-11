@@ -1,5 +1,6 @@
 const { Router } = require("express");
 const authController = require("../controllers/auth.controller");
+const authMiddleware = require("../middleware/auth.middleware");
 
 const authRouter = Router();
 
@@ -26,4 +27,12 @@ authRouter.post("/login", authController.loginUserController);
  */
 
 authRouter.get("/logout", authController.logoutUserController);
+
+/**
+ * @route GET /api/auth/me
+ * @description Get the current logged in user
+ * @access Private
+ */
+authRouter.get("/me", authMiddleware.authUser, authController.getCurrentUserController);
+
 module.exports = authRouter;
