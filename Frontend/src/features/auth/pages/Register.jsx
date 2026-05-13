@@ -1,45 +1,76 @@
-import React from 'react'
-import { useNavigate } from 'react-router'
-import { Link } from 'react-router'
+import React from "react";
+import { useNavigate } from "react-router";
+import { Link } from "react-router";
+import { useState } from "react";
+import { useAuth } from "../hooks/useAuth";
 
 const Register = () => {
-    const navigate = useNavigate()
+  const navigate = useNavigate();
+  const [username, setUsername] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
 
-    const handleSubmit = (e) => {
-        e.preventDefault()
-    }
-  return (
-    <main>
-        <div className="form-container">
-            <h1 className='heading'>Register</h1>
+  const { loading, handleRegister } = useAuth();
 
-            <form onSubmit={handleSubmit}>
-                <div className="input-group">
-                    <label htmlFor='username'>Username</label>
-                    <input type="text" id='username' name='username' placeholder='Enter username'/>
-                </div>
-                <div className="input-group">
-                    <label htmlFor="email">Email</label>
-                    <input type="email" id="email" name='email' placeholder='Enter email address'/>
-                </div>
-                <div className="input-group">
-                    <label htmlFor="password">Password</label>
-                    <input type="password" id="password" name="password"placeholder='Enter password'/>
-                </div>
-                <div className="input-group">
-                    <label htmlFor="confirmPassword">Confirm Password</label>
-                    <input type="password" id="confirmPassword" name="confirmPassword" placeholder='Confirm password'/>
-                </div>
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    await handleRegister({ username, email, password });
+    navigate("/");
+  };
 
-                <button className='button primary-button'>Register</button>
-            </form>
+  if (loading) {
+    return (<main>
+      <h1>Loading...</h1>
+    </main>);
+  }
     
-            <div className="login-link">
-                <p>Already registered? <Link to="/login">Login here</Link></p>
-            </div>
-        </div>
-    </main>
-  )
-}
+    return (
+    <main>
+      <div className="form-container">
+        <h1 className="heading">Register</h1>
 
-export default Register
+        <form onSubmit={handleSubmit}>
+          <div className="input-group">
+            <label htmlFor="username">Username</label>
+            <input
+              onChange={(e) => setUsername(e.target.value)}
+              type="text"
+              id="username"
+              name="username"
+              placeholder="Enter username"
+            />
+          </div>
+          <div className="input-group">
+            <label htmlFor="email">Email</label>
+            <input
+            onChange={(e) => setEmail(e.target.value)}
+              type="email"
+              id="email"
+              name="email"
+              placeholder="Enter email address"
+            />
+          </div>
+          <div className="input-group">
+            <label htmlFor="password">Password</label>
+            <input
+              onChange={(e) => setPassword(e.target.value)}
+              type="password"
+              id="password"
+              name="password"
+              placeholder="Enter password"
+            />
+          </div>
+          <button className="button primary-button">Register</button>
+        </form>
+
+        <div className="login-link">
+          <p>
+            Already registered? <Link to="/login">Login here</Link>
+          </p>
+        </div>
+      </div>
+    </main>
+  );
+};
+
+export default Register;
